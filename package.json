@@ -1,0 +1,19 @@
+{
+  "name": "selectiveflow.js",
+  "version": "0.0.1",
+  "description": "",
+  "author": "Mattias Runge <mattias@runge.se>",
+  "repository": { "type": "git", "url": "git://github.com/mattiasrunge/selectiveflow.js.git" },
+  "dependencies": {
+    "query-engine": ">= 0.5.3",
+    "backbone": ">= 1.5.3"
+  },
+  "devDependencies": {
+    "jshint": "~1.1.0",
+    "proxyquire": ">= 0.5.1",
+    "assert": ">= 0.4.9"
+  },
+  "engines": { "node": ">= 0.8.0" },
+  "main": "index.js",
+  "license": "GPLv2"
+}
