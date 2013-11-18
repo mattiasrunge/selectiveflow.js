@@ -10,22 +10,22 @@ suite("selectiveflow", function()
     test("A simple flow", function(done)
     {
       var flow = new _selectiveflow();
-      var callCount = 0;
+      var calledSteps = [];
       
       var firstEvent = { type: "StartEvent", id: 1 };
       var secondEvent = { type: "NextEvent", list: [ 1, 2 ] };
       
       flow.addStep("first", [ { type: "StartEvent" } ]);
-      flow.addStep("second", [ { type: "NextEvent" } ]);
-      
-      flow.addCriteria("second", { dummy: false });
+      flow.addStep("second", [ { type: "NextEvent" } ], true);
       
       flow.addStepCallback("first", function(stepName, events)
       {
-        callCount++;
+        calledSteps.push(stepName);
         
         assert.equal(events.length, 1);
         assert.deepEqual(firstEvent, events[0]);
+        
+        flow.handleEvent(secondEvent);
         
         flow.resetStep("second");
         flow.addCriteria("second", { list: { $in: events[0].id } });
@@ -35,16 +35,16 @@ suite("selectiveflow", function()
       
       flow.addStepCallback("second", function(stepName, events)
       {
-        callCount++;
-        
+        calledSteps.push(stepName);
+
         assert.equal(events.length, 1);
         assert.deepEqual(secondEvent, events[0]);
         
-        assert.equal(callCount, 2);
+        assert.deepEqual(calledSteps, [ "first", "second" ]);
         
         done();
       });
-      
+
       flow.handleEvent(firstEvent);
     });
 
@@ -58,8 +58,6 @@ suite("selectiveflow", function()
       
       flow.addStep("first", [ { "type.name": "StartEvent", id: 1 } ]);
       flow.addStep("second", [ { type: "NextEvent" } ]);
-      
-      flow.addCriteria("second", { dummy: false });
       
       flow.addStepCallback("first", function(stepName, events)
       {

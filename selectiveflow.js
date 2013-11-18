@@ -17,14 +17,15 @@
     
     self.steps = {};
     
-    self.addStep = function(name, permanentCriteria)
+    self.addStep = function(name, permanentCriteria, customCriteriaRequired)
     {
       var step = {};
       
-      step.permanentCriteria = JSON.stringify(permanentCriteria || []);
+      step.permanentCriteria = permanentCriteria || [];
+      step.customCriteriaRequired = customCriteriaRequired || false;
       step.callbacks = [];
       step.name = name;
-      step.criteria = JSON.parse(step.permanentCriteria);
+      step.criteria = [];
       step.events = [];
       
       self.steps[name] = step;
@@ -42,7 +43,7 @@
     
     self.resetStep = function(stepName)
     {
-      self.steps[stepName].criteria = JSON.parse(self.steps[stepName].permanentCriteria);
+      self.steps[stepName].criteria = [];
       
       if (self.steps[stepName].events.length > 0)
       {
@@ -63,7 +64,7 @@
     {
       for (var name in self.steps)
       {
-        if (self._matchesCriteria(self.steps[name].criteria, event))
+        if (self._matchesCriteria(name, event))
         {
           self.steps[name].events.push(event);
           self._triggerStep(name);
@@ -79,15 +80,17 @@
       }
     };
     
-    self._matchesCriteria = function(criteria, event)
+    self._matchesCriteria = function(stepName, event)
     {
-      if (criteria.length === 0)
+      if (self.steps[stepName].criteria.length === 0 && self.steps[stepName].customCriteriaRequired)
       {
         return false;
       }
       
-      var models = [event];
-      var criteriaCollection = new QueryEngine.Criteria({queries:criteria});
+      var criteria = [].concat(self.steps[stepName].permanentCriteria, self.steps[stepName].criteria);
+      
+      var models = [ event ];
+      var criteriaCollection = new QueryEngine.Criteria({ queries: criteria });
       var passedModels = criteriaCollection.testModels(models);
 
       return passedModels.length > 0;
