@@ -1613,13 +1613,13 @@
             selectorValue: selectorValue
           });
           compiledSelectors.push(compiledSelector);
-        } else if (selectorValue instanceof Backbone.Model) {
+        } else if (Backbone && selectorValue instanceof Backbone.Model) {
           compiledSelector = this.compileSelector('model', {
             fieldName: fieldName,
             selectorValue: selectorValue
           });
           compiledSelectors.push(compiledSelector);
-        } else if (selectorValue instanceof Backbone.Collection) {
+        } else if (Backbone && selectorValue instanceof Backbone.Collection) {
           compiledSelector = this.compileSelector('collection', {
             fieldName: fieldName,
             selectorValue: selectorValue

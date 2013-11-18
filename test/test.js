@@ -3,7 +3,7 @@ var assert = require("assert");
 
 suite("selectiveflow", function()
 {
-  var _selectiveflow = require("../index");
+  var _selectiveflow = require("../selectiveflow");
 
   suite("Test flows", function()
   {
