@@ -10,6 +10,7 @@ suite("selectiveflow", function()
     test("A simple flow", function(done)
     {
       var flow = new _selectiveflow();
+      var callCount = 0;
       
       var firstEvent = { type: "StartEvent", id: 1 };
       
@@ -17,17 +18,57 @@ suite("selectiveflow", function()
       
       flow.addStepCallback("first", function(stepName, events)
       {
+        callCount++;
+        
         assert.equal(events.length, 1);
         assert.deepEqual(firstEvent, events[0]);
         
         flow.addCriteria("second", { list: { $in: events[0].id } });
-        
-        
       });
       
       var secondEvent = { type: "NextEvent", list: [ 1, 2 ] };
       
       flow.addStep("second", [ { type: "NextEvent" } ]);
+      
+      flow.addStepCallback("second", function(stepName, events)
+      {
+        callCount++;
+        
+        assert.equal(events.length, 1);
+        assert.deepEqual(secondEvent, events[0]);
+        
+        assert.equal(callCount, 2);
+        
+        done();
+      });
+      
+      flow.handleEvent(firstEvent);
+      flow.handleEvent(secondEvent);
+    });
+
+    test("Flow with more then one level data", function(done)
+    {
+      var flow = new _selectiveflow();
+      
+      var firstEvent = { type: { name: "StartEvent" }, id: 1 };
+      var secondEvent = { type: "NextEvent", list: [ 1, 2 ] };
+      
+      
+      flow.addStep("first", [ { "type.name": "StartEvent", id: 1 } ]);
+      flow.addStep("second", [ { type: "NextEvent" } ]);
+      
+      flow.addCriteria("second", { dummy: false });
+      
+      flow.addStepCallback("first", function(stepName, events)
+      {
+        assert.equal(events.length, 1);
+        assert.deepEqual(firstEvent, events[0]);
+        
+        flow.resetStep("second");
+        flow.addCriteria("second", { list: { $in: events[0].id } });
+        
+        flow.handleEvent(secondEvent);
+      });
       
       flow.addStepCallback("second", function(stepName, events)
       {
@@ -38,7 +79,7 @@ suite("selectiveflow", function()
       });
       
       flow.handleEvent(firstEvent);
-      flow.handleEvent(secondEvent);
+      
     });
   });
 });
