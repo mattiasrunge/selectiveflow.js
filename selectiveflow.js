@@ -3,7 +3,7 @@
 {
   if (typeof define === "function" && define.amd)
   {
-    define(["query-engine"], factory);
+    define(["queryEngine"], factory);
   }
   else
   {
